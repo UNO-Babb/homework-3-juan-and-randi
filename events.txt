@@ -1,0 +1,25 @@
+Start Job, +2000
+Pay Rent, -500
+Payday, +1200
+Start Side Hustle, +800
+Pay Utilities, -150
+Income Tax, -400
+Bonus!, +500
+Debt Payment, -250
+Tuition, -800
+Raise!, +1000
+Buy Groceries, -120
+Weekend Off, +50 Energy
+Stock Investment, +/-200
+Car Trouble, -300
+Hit Jackpot, +1500
+Got Scammed, -600
+Childcare Costs, -450
+Mental Break, -100 Energy
+Doctor Visit, -200
+Friend Helps, +100
+Take a Rest, +70 Energy
+Inheritance, +1200
+Extra Work, -50 Energy
+Lazy Day, No Change
+Final Task Completed, +500

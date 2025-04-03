@@ -1,61 +1,79 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hexagon Tile Game</title>
+    <title>Wage War</title>
     <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
+        body { font-family: Arial; text-align: center; margin-top: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(5, 60px); grid-gap: 10px; justify-content: center; margin-bottom: 20px; }
+        .tile {
+            width: 60px; height: 60px;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid #333;
+            background-color: white;
+            cursor: pointer;
+            font-weight: bold;
         }
-        #board {
-            display: grid;
-            grid-template-columns: repeat(10, 60px);
-            grid-template-rows: repeat(10, 52px);
-            gap: 2px;
-        }
-        .hex {
-            width: 60px;
-            height: 52px;
-            background-color: lightgray;
-            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-            transition: background-color 0.2s;
-        }
+        .green { background-color: green; color: white; }
+        .blue { background-color: blue; color: white; }
+        .gray { background-color: gray; color: white; }
     </style>
 </head>
 <body>
+    <h1>Wage War</h1>
+    <h3 id="turn">Player 1's Turn</h3>
+    <div class="grid" id="board">
+        <!-- Se genera con JS -->
+    </div>
+    <p id="eventMsg"></p>
+    <p id="score">Player 1: $1000 | Player 2: $1000</p>
+    <button onclick="restartGame()">Restart Game</button>
 
-<div id="board">
-    <!-- Hexagonal tiles will be added here on clicks -->
-</div>
+    <script>
+        let currentPlayer = 1;
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    $(document).ready(function() {
-        // Create an empty board of hex tiles
-        for (let i = 0; i < 100; i++) {
-            const hexTile = $('<div class="hex"></div>');
-            hexTile.data("clicked", false);  // Track if a tile has been clicked
-            $('#board').append(hexTile);
+        function createBoard() {
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+            for (let i = 1; i <= 25; i++) {
+                const tile = document.createElement('div');
+                tile.className = 'tile';
+                tile.innerText = i;
+                tile.onclick = () => addTile(i, tile);
+                board.appendChild(tile);
+            }
         }
 
-        // Add color to hex tiles on click
-        $('#board').on('click', '.hex', function() {
-            if (!$(this).data("clicked")) {  // Only allow one click per tile
-                $.getJSON('/add_tile', function(data) {
-                    $(this).css('background-color', data.color);
-                    $(this).data("clicked", true);  // Mark as clicked
-                }.bind(this));
-            }
-        });
-    });
-</script>
+        function addTile(id, tileDiv) {
+            fetch(`/add_tile/${id}`)
+                .then(res => res.json())
+                .then(data => {
+                    tileDiv.classList.add(data.color);
+                    document.getElementById('eventMsg').innerText = data.message;
+                    document.getElementById('score').innerText = `Player 1: $${data.player1_money} | Player 2: $${data.player2_money}`;
+                    currentPlayer = data.next_player;
+                    document.getElementById('turn').innerText = `Player ${currentPlayer}'s Turn`;
 
+                    if (data.game_over) {
+                        setTimeout(() => {
+                            alert(`Player ${data.player} WINS!`);
+                        }, 100);
+                    }
+                });
+        }
+
+        function restartGame() {
+            fetch('/reset', { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    createBoard();
+                    document.getElementById('eventMsg').innerText = '';
+                    document.getElementById('turn').innerText = "Player 1's Turn";
+                    document.getElementById('score').innerText = `Player 1: $${data.player1_money} | Player 2: $${data.player2_money}`;
+                });
+        }
+
+        createBoard();
+    </script>
 </body>
 </html>
+
